@@ -1,0 +1,24 @@
+# db
+aiosqlite
+better_profanity
+
+# discord
+discord.py>=2.6.0
+numpy>=1.23
+opencv-python>=4.8
+
+# image handling
+Pillow>=10.0.0
+
+# code management
+pre-commit
+pydantic-settings
+
+# Date and Time Handling
+python-dateutil
+
+# Settings Handling
+python-dotenv
+
+# word library
+wordfreq
