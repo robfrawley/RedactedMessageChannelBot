@@ -36,16 +36,17 @@ class RedactedMessagesListener(commands.Cog):
         )
 
         try:
-            await self.handle_redacted_message_mentions_warnings(message)
             await self.handle_redacted_message_generation(message)
         except Exception as e:
             logger.error(f"Error processing redacted message {message.id}: {e}")
         finally:
             try:
                 await message.delete()
-                await user_warning_repo.purge_older_than(24 * 60 * 60)
+                await self.handle_redacted_message_mentions_warnings(message)
             except Exception:
                 pass
+            finally:
+                await user_warning_repo.purge_older_than(24 * 60 * 60)
 
 
     def is_actionable_redacted_message(self, message: discord.Message) -> bool:
@@ -87,7 +88,7 @@ class RedactedMessagesListener(commands.Cog):
             await message.channel.send(
                 content=f"{message.author.mention}",
                 embed=embed,
-                delete_after=30.0,
+                delete_after=settings.warnings_post_delete_delay_seconds,
             )
 
             warning_record = UserWarning(
@@ -259,4 +260,5 @@ class RedactedMessagesListener(commands.Cog):
             await message.channel.send(
                 files=chunk,
                 allowed_mentions=discord.AllowedMentions.none(),
+                delete_after=settings.redacted_post_delete_delay_seconds,
             )

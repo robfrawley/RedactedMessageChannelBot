@@ -17,6 +17,8 @@ class SettingsManager(BaseSettings):
     redacted_channel_id: int | None = Field(default=None)
     log_channel_id: int | None = Field(default=None)
     log_mention_role_id: int | None = Field(default=None)
+    warnings_post_delete_delay_seconds: float = Field(default=30.0)
+    redacted_post_delete_delay_seconds: float = Field(default=120.0)
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILE_PATH,
