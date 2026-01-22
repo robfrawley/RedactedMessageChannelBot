@@ -1,4 +1,4 @@
-# Discord Community Helper Bot
+# RedactedMessageChannelBot
 
 ## Invite Bot to Server
 
