@@ -18,7 +18,7 @@ class SettingsManager(BaseSettings):
     log_channel_id: int | None = Field(default=None)
     log_mention_role_id: int | None = Field(default=None)
     warnings_post_delete_delay_seconds: float = Field(default=30.0)
-    redacted_post_delete_delay_seconds: float = Field(default=120.0)
+    redacted_post_delete_delay_seconds: float | None = Field(default=None)
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILE_PATH,
@@ -39,6 +39,15 @@ class SettingsManager(BaseSettings):
     @classmethod
     def normalize_bot_time_zone(cls, v):
         return ZoneInfo(v) if isinstance(v, str) else v
+
+    @field_validator("redacted_post_delete_delay_seconds", mode="before")
+    @classmethod
+    def empty_str_to_none(cls, v):
+        if v is None:
+            return None
+        if isinstance(v, str) and v.strip() == "":
+            return None
+        return v
 
 
 settings = SettingsManager() # type: ignore

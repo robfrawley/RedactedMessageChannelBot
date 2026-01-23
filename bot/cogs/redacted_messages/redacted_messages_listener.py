@@ -260,5 +260,5 @@ class RedactedMessagesListener(commands.Cog):
             await message.channel.send(
                 files=chunk,
                 allowed_mentions=discord.AllowedMentions.none(),
-                delete_after=settings.redacted_post_delete_delay_seconds,
+                delete_after=settings.redacted_post_delete_delay_seconds, # type: ignore
             )
