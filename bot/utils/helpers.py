@@ -564,7 +564,7 @@ def redact_image(
     max_h = max(min_window_size[1], int(h * max_window_size_fraction[1]))
 
     attempts = 0
-    max_attempts = max(500, window_count * 25)
+    max_attempts = max(2000, window_count * 25)
 
     while revealed_area < target_reveal_area and attempts < max_attempts:
         attempts += 1
