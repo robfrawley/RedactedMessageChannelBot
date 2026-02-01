@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 from PIL import Image
 
+from bot.utils.settings import settings
 from bot.utils.logger import logger
 from bot.utils.helpers import (
     redacted_document_image,
@@ -280,10 +281,22 @@ class RedactedMessagesListener(commands.Cog):
     # ─────────────────────────────────────────────
 
     def is_actionable_redacted_message(self, message: discord.Message) -> bool:
+        if message.is_system():
+            return False
+
+        if message.guild is None:
+            return False
+
+        if self.bot.user is None:
+            return False
+
         if message.author.bot:
             return False
-        if not message.guild:
+
+        if message.channel.id != settings.redacted_channel_id:
             return False
+
         if not message.channel.permissions_for(message.guild.me).manage_messages:
             return False
+
         return True
