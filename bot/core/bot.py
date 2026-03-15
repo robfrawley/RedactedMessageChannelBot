@@ -37,7 +37,15 @@ class Bot(commands.Bot):
                 logger.warning(f'- "{ext}" (failure: {e})')
 
         logger.info('Syncing commands...')
-        logger.log_commands(await self.tree.sync())
+        if settings.debug_mode:
+            guild = await self.fetch_guild(
+                settings.bot_guild_id
+            )
+            self.tree.copy_global_to(guild=guild)
+
+        logger.log_commands(
+            await self.tree.sync(guild=guild or None)
+        )
 
     async def on_ready(self) -> None:
         logger.debug('Running on-ready hook...')

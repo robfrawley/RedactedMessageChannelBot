@@ -530,6 +530,7 @@ def redact_image(
     blur_radius: float = 0.35,
     feather: int = 1,
     pixel_size: int = 16,
+    message: discord.Message | None = None,
 ) -> Image.Image:
     rng = random.Random(seed)
 
@@ -592,7 +593,7 @@ def redact_image(
     except OSError:
         font = ImageFont.load_default()
 
-    text = "[REDACTED]"
+    text = "[REDACTED: {}]".format(message.author.name if message else "UNKNOWN")
     bbox = draw.textbbox((0, 0), text, font=font)
     text_w = int(bbox[2] - bbox[0])
     text_h = int(bbox[3] - bbox[1])
@@ -636,6 +637,7 @@ def redact_asset(
     blur_radius: float = 0.35,
     feather: int = 1,
     pixel_size: int = 16,
+    message: discord.Message | None = None,
 ) -> Image.Image:
     """
     Accepts:
@@ -656,6 +658,7 @@ def redact_asset(
         blur_radius=blur_radius,
         feather=feather,
         pixel_size=pixel_size,
+        message=message,
     )
 
 

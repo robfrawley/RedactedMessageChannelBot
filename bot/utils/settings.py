@@ -12,11 +12,17 @@ from bot import ENV_FILE_PATH
 class SettingsManager(BaseSettings):
     discord_token: str = Field()
     sqlite_db_path: str = Field()
+
     debug_mode: bool = Field(default=False)
+
+    bot_guild_id: int = Field()
     bot_time_zone: ZoneInfo = Field(default=ZoneInfo("UTC"))
+
     redacted_channel_id: int | None = Field(default=None)
+
     log_channel_id: int | None = Field(default=None)
     log_mention_role_id: int | None = Field(default=None)
+
     warnings_post_delete_delay_seconds: float = Field(default=30.0)
     redacted_post_delete_delay_seconds: float | None = Field(default=None)
 

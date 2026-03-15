@@ -49,6 +49,7 @@ class RedactedMessagesListener(commands.Cog):
         seed: int,
         exposed_fraction: float,
         window_count: int,
+        message: discord.Message | None = None,
     ) -> Image.Image:
         return await asyncio.to_thread(
             redact_asset,
@@ -56,6 +57,7 @@ class RedactedMessagesListener(commands.Cog):
             seed=seed,
             exposed_fraction=exposed_fraction,
             window_count=window_count,
+            message=message,
         )
 
     async def _pil_to_discord_file_threaded(
@@ -104,6 +106,7 @@ class RedactedMessagesListener(commands.Cog):
     ) -> None:
         async with self._render_sem:
             files: list[discord.File] = []
+            deleted: bool = False
 
             content = message.content.strip()
 
@@ -116,6 +119,14 @@ class RedactedMessagesListener(commands.Cog):
             # ─── Text content ──────────────────────
 
             if content and not gif_url:
+                try:
+                    await message.delete()
+                    deleted = True
+                except:
+                    logger.error(
+                        f"Failed to delete redacted message {message.id}"
+                    )
+                    pass
                 doc_img = await self._redacted_document_image_threaded(
                     content,
                     username=str(message.author),
@@ -141,6 +152,7 @@ class RedactedMessagesListener(commands.Cog):
                         seed=seed_url,
                         exposed_fraction=exposed_fraction,
                         window_count=window_count,
+                        message=message,
                     )
                     files.append(
                         await self._pil_to_discord_file_threaded(
@@ -180,6 +192,7 @@ class RedactedMessagesListener(commands.Cog):
                             seed=seed_i,
                             exposed_fraction=exposed_fraction,
                             window_count=window_count,
+                            message=message,
                         )
                         files.append(
                             await self._pil_to_discord_file_threaded(
@@ -242,6 +255,7 @@ class RedactedMessagesListener(commands.Cog):
                                 seed=seed_j,
                                 exposed_fraction=exposed_fraction,
                                 window_count=window_count,
+                                message=message,
                             )
                             files.append(
                                 await self._pil_to_discord_file_threaded(
@@ -266,14 +280,19 @@ class RedactedMessagesListener(commands.Cog):
                                 )
                             )
 
-            if not files:
-                return
-
-            await message.channel.send(files=files)
+            if files:
+                logger.debug(
+                    f"Sending {len(files)} redacted files for message {message.id}"
+                )
+                await message.channel.send(files=files)
 
             try:
-                await message.delete()
-            except discord.Forbidden:
+                if not deleted:
+                    await message.delete()
+            except:
+                logger.error(
+                    f"Failed to delete redacted message {message.id}"
+                )
                 pass
 
     # ─────────────────────────────────────────────
@@ -294,9 +313,6 @@ class RedactedMessagesListener(commands.Cog):
             return False
 
         if message.channel.id != settings.redacted_channel_id:
-            return False
-
-        if not message.channel.permissions_for(message.guild.me).manage_messages:
             return False
 
         return True
